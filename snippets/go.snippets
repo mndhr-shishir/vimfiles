@@ -1,0 +1,32 @@
+snippet err
+	if ${1:err} != nil {
+		${0}
+	}
+
+snippet inter
+	type ${1:name} interface {
+		$0
+	}
+
+snippet str
+	type ${1:name} struct {
+		$0
+	}
+
+snippet inp
+	${1:input} := bufio.NewScanner(os.Stdin)$0
+
+snippet pln
+	fmt.Println($1)$0
+
+snippet pt
+	fmt.Print($1)$0
+
+snippet pf
+	fmt.Printf("$1\\n", $2)$0
+
+snippet spf
+	fmt.Sprintf("$1\\n", $2)$0
+
+snippet ef
+	fmt.Errorf("$1\\n", $2)$0

@@ -1,0 +1,43 @@
+snippet rcc
+	import React, { Component } from 'react';
+
+	class ${1:`Filename()`} extends Component {
+		state = {};
+
+		render() {
+			return (
+				<div>
+					<p>${2:hello world}</p>
+				</div>
+			);
+		}
+	}
+
+	export default $1;
+
+snippet rfc
+	import React, { Component } from 'react';
+
+	const ${1:`Filename()`} = (${2:props}) => {
+		return (
+			<div>
+				<p>${0:body}</p>
+			</div>
+		);
+	}
+
+	export default $1;
+
+snippet clg
+	console.log(${1:message});$0
+
+snippet arr
+	${1:name} = ($2) => {
+		$0
+	};
+
+snippet router
+	import { Switch, Route, Link } from 'react-router-dom';
+
+snippet ds
+	const { $1 } = this.state;$0

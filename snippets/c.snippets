@@ -1,0 +1,60 @@
+snippet main
+	#include <stdio.h>
+
+	int main(int argc, char** argv) {
+		$0
+		return 0;
+	}
+
+snippet i<
+	#include <$1.h>$0
+
+snippet i"
+	#include "$1.h"$0
+
+snippet wh
+	while (${1:condition}) {
+		$2
+	}$0
+
+snippet def
+	#define $0
+
+snippet once
+	#ifndef ${1:`toupper(Filename())`}_H
+	#define $1_H
+	
+	$0
+
+	#endif
+
+snippet pf
+	printf(${1:message});$0
+
+snippet pfs
+	printf("$1%s\\n", $2);$0
+
+snippet pfn
+	printf("$1%d\\n", $2);$0
+
+snippet pff
+	printf("$1%f\\n", ${2});${0} 
+
+snippet struct
+	typedef struct $1 {
+		$2
+	} $1;$0
+
+snippet enum
+	typedef enum $1 {
+		$2
+	} $1;$0
+
+snippet fun
+	${1:type} ${2:name}($3) {
+		$0
+	}
+
+snippet sig
+	${1:type} ${2:name}($3);$0
+
