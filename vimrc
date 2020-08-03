@@ -1,5 +1,4 @@
-" packadd! matchit
-
+" vimrc
 " Plugins {{{
 call plug#begin("E:\\_vimext\\plugs\\")
 Plug 'tpope/vim-fugitive'
@@ -28,12 +27,12 @@ Plug 'pangloss/vim-javascript'
 Plug 'MaxMEllon/vim-jsx-pretty'
 Plug 'fatih/vim-go'
 Plug 'neovimhaskell/haskell-vim'
-" colorschemes
+" colorscheme(s)
 Plug 'junegunn/seoul256.vim'
 call plug#end()
 " }}}
+
 " General {{{
-let mapleader="\<Space>"
 
 filetype plugin indent on
 syntax sync minlines=256 "opt
@@ -42,7 +41,6 @@ syntax sync minlines=256 "opt
 set autoindent
 set autoread
 set autowriteall
-set cscopeverbose
 set expandtab
 set hidden
 set hlsearch
@@ -95,17 +93,27 @@ set updatetime=300
 set wildignore+=*.zip,*.png,*.jpg,*.gif,*.pdf,*DS_Store*,*\\.git\\*,*\\node_modules\\*,*\\build\\*,*\\__pycache__\\*,package-lock.json
 set pythonthreedll=python37.dll
 " }}}
+
+" Abbrevs {{{
+cabbrev verb verbose
+" }}}
+
 " Keymaps {{{
+let mapleader="\<Space>"
+
 " show highlight group
 map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
     \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
     \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
-" skip some symbols
+" skip some symbols (useful when you have autopairs)
 inoremap <expr> <S-enter> search('\%#[]>)}''"`]', 'n') ? '<right>' : ''
 
 " discard popupmenu selection and goto next line
 imap <expr> <cr> pumvisible() ? "\<c-e>\<Plug>delimitMateCR" : "<Plug>delimitMateCR"
+
+" command line completion
+cnoremap <c-tab> <c-d>
 
 " close quickfix on <c-z>
 nnoremap <silent> <c-z> :ccl<cr>
@@ -116,10 +124,6 @@ nnoremap \| :silent !
 
 " toggle case
 inoremap <c-k> <esc>viw~ea
-" change the case of current word to uppercase
-inoremap <c-u> <esc>viwUea
-" change the case of current word to lowercase
-inoremap <c-l> <esc>viwuea
 
 " some remappings
 nnoremap <tab> %
@@ -128,12 +132,7 @@ nnoremap <tab> %
 nnoremap c; *``cgn
 nnoremap c, #``cgn
 
-" traverse through search items while searching
-" was previously <c-g> and <c-t>
-cnoremap <c-j> <c-right>
-cnoremap <c-k> <c-left>
-
-"replace split with current buffer containing the cursor
+" close all splits except the active one
 nnoremap <leader>wo :only<cr>
 
 " update buffer
@@ -146,10 +145,10 @@ nnoremap <silent> gq :bd<cr>
 nnoremap <silent> gQ :bd!<cr>
 vnoremap <silent> gq <c-c>:bd<cr>
 
-" switch back and forth between alternate buffers
+" switch between alternate buffers
 nnoremap <leader><leader> <C-^>
 
-" navigate windows
+" navigate between windows
 nnoremap <leader>wj <c-w>j
 nnoremap <leader>wk <c-w>k
 nnoremap <leader>wl <c-w>l
@@ -161,16 +160,17 @@ vnoremap fd <esc>
 snoremap fd <esc>
 nnoremap <esc> :noh<cr>
 
-" edit and source current buffer
+" edit vimrc and source current file
 nnoremap <leader>v :e $MYVIMRC<cr>
 nnoremap <leader>V :source %<cr>
 " }}}
+
 " Augroups {{{
 " Renu Toggle {{{
 augroup ToggleRelativeNumber
     autocmd!
-    autocmd InsertEnter          * :set norelativenumber
-    autocmd BufEnter,InsertLeave * :set relativenumber
+    autocmd InsertLeave,BufEnter,FocusGained * set relativenumber
+    autocmd InsertEnter,BufLeave,FocusLost   * set norelativenumber
 augroup END
 " }}}
 " Autoread {{{
@@ -202,7 +202,7 @@ augroup ft_django
 	autocmd FileType htmldjango call DjangoConfig()
 augroup END
 " }}}
-" Js famly setttings {{{
+" Jsft related settings {{{
 augroup ft_jsfamily
 	autocmd!
 	autocmd BufNewFile,BufRead *.js set ft=javascript.jsx
@@ -224,6 +224,7 @@ augroup vimrc-incsearch-highlight
 augroup END
 " }}}
 " }}}
+
 " Custom functions {{{
 " Preserve cursor and scroll position {{{
 function! Preserve(command)
@@ -240,7 +241,7 @@ function! Preserve(command)
     call winrestview(w)
 endfunction
 " }}}
-" Create parent directories {{{
+" Create directories if they don't exis {{{
 " original source: pending...
 function s:MkNonExDir(file, buf)
     if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
@@ -357,137 +358,7 @@ augroup quickfix
 augroup END
 " }}}
 " }}}
-" Colorscheme {{{
-" All  {{{
-function! CustomHighlights() abort
-    hi SignColumn guibg=NONE
-    hi LineNr     ctermbg=NONE       guibg=NONE
-    hi Comment    gui=NONE
-    hi NonText    gui=NONE
-    hi SpecialKey guibg=NONE
-    hi MatchParen gui=bold,underline guibg=NONE
 
-endfunction
-" }}}
-" Apprentice {{{
-function! CustomApprentice() abort
-    call CustomHighlights()
-
-    hi link htmlArg Type
-
-    hi NeoMakeErrorSign   ctermfg=235 ctermbg=131 guifg=#af5f5f guibg=#262626
-    hi NeoMakeWarningSign ctermfg=235 ctermbg=229 guifg=#ffffaf guibg=#262626
-    hi NeoMakeMessageSign ctermfg=108 ctermbg=235 guifg=#87af87 guibg=#262626
-    hi NeoMakeInfoSign    ctermfg=110 ctermbg=235 guifg=#8fafd7 guibg=#262626
-endfunction
-" }}}
-" Seoul-256 {{{
-function! CustomSeoul() abort
-    call CustomHighlights()
-	hi    StatusLine    cterm=bold,reverse ctermfg=95           ctermbg=234 gui=bold,reverse guifg=#987372    guibg=#252525
-	hi    StatusLineNC  cterm=bold,underline         ctermfg=95           ctermbg=234 gui=bold,underline         guifg=#987372    guibg=#252525
-
-    hi NeoMakeErrorSign   guifg=#E12672
-    hi NeoMakeWarningSign guifg=#DFBC72
-    hi NeoMakeMessageSign guifg=#719872
-    hi NeoMakeInfoSign    guifg=#98BCBD
-	let g:terminal_ansi_colors = [
-			\ "#4e4e4e",
-			\ "#d68787",
-			\ "#5f865f",
-			\ "#d8af5f",
-			\ "#85add4",
-			\ "#d7afaf",
-			\ "#87afaf",
-			\ "#d0d0d0",
-			\ "#626262",
-			\ "#d75f87",
-			\ "#87af87",
-			\ "#ffd787",
-			\ "#add4fb",
-			\ "#ffafaf",
-			\ "#87d7d7",
-			\ "#e4e4e4",
-			\ ]
-endfunction
-" }}}
-" Silkworm {{{
-function! CustomSilkworm() abort
-    hi    NonText          guibg=NONE
-    hi    SpecialKey       guibg=NONE
-    hi    StorageClass     gui=NONE
-    hi    Identifier       gui=NONE
-    hi    VertSplit        gui=NONE
-    hi    link             Search            Pmenu
-    hi    IncSearch        gui=NONE          guibg=#367a7f
-    hi    WarningMsg       term=standout     ctermfg=4          gui=bold guifg=#76690b guibg=#d9d1c9
-    hi    link             Error             ErrorMsg
-    hi    StatusLineNC     term=bold,reverse cterm=bold,reverse gui=bold guifg=#656565 guibg=#ece3db
-endfunction
-" }}}
-" Plain {{{
-function CustomPlain() abort
-    hi! link Search VisualNOS
-    hi! link IncSearch Visual
-    hi! link Type Statement
-    hi! link LineNr Comment
-    hi! link Todo StatusLineError
-    hi! link cDefine Statement
-endfunction
-" }}}
-" Autocommands
-augroup CustomColorscheme
-    autocmd!
-    autocmd ColorScheme seoul256 call CustomSeoul()
-augroup END
-let g:python_highlight_all = 1
-let g:seoul256_background=234
-color seoul256
-" }}}
-" Statusline {{{
-" Modes
-let s:currentmode= {
-            \ 'n'  	    : 'Normal',
-            \ 'i'  	    : 'Insert',
-            \ 'v'  	    : 'Visual',
-            \ 'V'  	    : 'V-Line',
-            \ "\<C-v>"	: 'V-Block',
-            \ 's' 		: 'Select',
-            \ 'S' 		: 'S-Line',
-            \ 'R' 		: 'Replace',
-            \ 'Rv'		: 'V-Replace',
-            \ 'c' 		: 'Command',
-            \ 'cv'		: 'Vim Ex',
-            \ 'ce'		: 'Ex',
-            \ 'r'		: 'Prompt',
-            \ 'rm'		: 'More',
-            \ 'r?'		: 'Confirm',
-            \ '!' 		: 'Shell',
-            \ 't' 		: 'Terminal'
-            \}
-
-function! GitInfo()
-    let git = fugitive#head()
-    if git != ''
-        return '('.fugitive#head().') '
-    else
-        return ''
-endfunction
-
-function! CurrentMode()
-    return '  '.s:currentmode[mode()].' '
-endfunction
-
-" format
-set statusline=
-set statusline+=%{CurrentMode()}
-set statusline+=\|\ %{GitInfo()}
-set statusline+=%{expand('%:~:.')!=#''?expand('%:~:.'):'[No\ Name]'}
-set statusline+=%m\ %r
-set statusline+=%#SpecialKey#
-set statusline+=\ %=
-set statusline+=%Y\ "
-" }}}
 " Plugin config {{{
 " Ctrlp {{{
 " let g:ctrlp_user_command       = ['.git', 'cd %s && git ls-files -co --exclude-standard']
@@ -550,7 +421,7 @@ augroup Emmet
 augroup END
 " }}}
 
-" Go {{{
+" Vim-go {{{
 " Config
 " let g:neomake_go_enabled_makers = []
 let g:go_imports_mode                        = "goimports"
@@ -576,8 +447,8 @@ let g:go_highlight_trailing_whitespace_error = 0
 
 " Keymaps
 function s:GoKeyMaps()
-    nnoremap <silent> <buffer> <leader>. :GoRun<cr><cr>
-    nnoremap <silent> <buffer> <leader>? :GoImports<cr>
+    nnoremap <silent> <buffer> <localleader>. :GoRun<cr><cr>
+    nnoremap <silent> <buffer> <localleader>? :GoImports<cr>
 endfunction
 
 " Autocmds
@@ -646,9 +517,10 @@ let g:gutentags_ctags_exclude = [
 
 " Neomake {{{
 " Config
+" Run linting after saving current file
 call neomake#configure#automake('w')
+
 let g:neomake_open_list = 2
-" let b:neomake_open_list = 2
 
 let g:neomake_error_sign = {
             \ 'text': "\\ ●",
@@ -687,11 +559,10 @@ function SessionStatus()
     return ObsessionStatus() ? '(' . ObsessionStatus . ')' : ''
 endfunction
 
-" let g:sesssions_dir='E:\\_vimext\\vim_cfg\\sessions\\'
 let g:sesssions_dir='~\\vimfiles\\sessions\\'
 
 " Keymaps
-" create session
+" create new session
 exec 'nnoremap <leader>s :Obsession ' . g:sesssions_dir . '*.vim<C-D><BS><BS><BS><BS><BS>'
 " source session
 exec 'nnoremap <leader>S :so ' . g:sesssions_dir . '*.vim<C-D><BS><BS><BS><BS><BS>'
@@ -718,6 +589,152 @@ smap <expr> <C-space> (pumvisible() ? "\<C-y>" : "")."\<Plug>snipMateNextOrTrigg
 let g:rooter_silent_chdir = 1
 " }}}
 " }}}
+
+" ColorScheme {{{
+" All  {{{
+function! CustomHighlights() abort
+    hi SignColumn guibg=NONE
+    hi LineNr     ctermbg=NONE       guibg=NONE
+    hi Comment    gui=NONE
+    hi NonText    gui=NONE
+    hi SpecialKey guibg=NONE
+    " hi MatchParen gui=bold,underline guibg=NONE
+endfunction
+" }}}
+" Apprentice {{{
+function! CustomApprentice() abort
+    call CustomHighlights()
+
+    hi link htmlArg Type
+
+    hi NeoMakeErrorSign   ctermfg=235 ctermbg=131 guifg=#af5f5f guibg=#262626
+    hi NeoMakeWarningSign ctermfg=235 ctermbg=229 guifg=#ffffaf guibg=#262626
+    hi NeoMakeMessageSign ctermfg=108 ctermbg=235 guifg=#87af87 guibg=#262626
+    hi NeoMakeInfoSign    ctermfg=110 ctermbg=235 guifg=#8fafd7 guibg=#262626
+endfunction
+" }}}
+" Seoul-256 {{{
+function! CustomSeoul() abort
+    call CustomHighlights()
+
+    if g:colors_name ==# 'seoul256' 
+        hi    StatusLine    cterm=bold,reverse ctermfg=95           ctermbg=234 gui=bold,reverse guifg=#987372    guibg=#252525
+        hi    StatusLineNC  cterm=bold,underline         ctermfg=95           ctermbg=234 gui=bold,underline         guifg=#987372    guibg=#252525
+
+        " inbuilt terminal ColorScheme
+        let g:terminal_ansi_colors = [
+                \ "#4e4e4e",
+                \ "#d68787",
+                \ "#5f865f",
+                \ "#d8af5f",
+                \ "#85add4",
+                \ "#d7afaf",
+                \ "#87afaf",
+                \ "#d0d0d0",
+                \ "#626262",
+                \ "#d75f87",
+                \ "#87af87",
+                \ "#ffd787",
+                \ "#add4fb",
+                \ "#ffafaf",
+                \ "#87d7d7",
+                \ "#e4e4e4",
+                \ ]
+    endif
+
+    hi NeoMakeErrorSign   guifg=#E12672
+    hi NeoMakeWarningSign guifg=#DFBC72
+    hi NeoMakeMessageSign guifg=#719872
+    hi NeoMakeInfoSign    guifg=#98BCBD
+
+endfunction
+" }}}
+" Silkworm {{{
+function! CustomSilkworm() abort
+    hi    NonText          guibg=NONE
+    hi    SpecialKey       guibg=NONE
+    hi    StorageClass     gui=NONE
+    hi    Identifier       gui=NONE
+    hi    VertSplit        gui=NONE
+    hi    link             Search            Pmenu
+    hi    IncSearch        gui=NONE          guibg=#367a7f
+    hi    WarningMsg       term=standout     ctermfg=4          gui=bold guifg=#76690b guibg=#d9d1c9
+    hi    link             Error             ErrorMsg
+    hi    StatusLineNC     term=bold,reverse cterm=bold,reverse gui=bold guifg=#656565 guibg=#ece3db
+endfunction
+" }}}
+" Plain {{{
+function CustomPlain() abort
+    call CustomHighlights()
+    hi! link Search VisualNOS
+    hi! link IncSearch Visual
+    hi! link Type Statement
+    hi! link LineNr Comment
+    hi! link Todo StatusLineError
+    hi! link cDefine Statement
+endfunction
+" }}}
+
+" Autocommands
+augroup CustomColorscheme
+    autocmd!
+    autocmd ColorScheme seoul256,seoul256-light call CustomSeoul()
+augroup END
+
+let g:python_highlight_all=1
+let g:seoul256_background=234
+set background=dark
+color seoul256
+" }}}
+
+" Statusline {{{
+" Modes
+let s:modes= {
+            \ 'n'  	    : 'normal',
+            \ 'i'  	    : 'insert',
+            \ 'v'  	    : 'visual',
+            \ 'V'  	    : 'v-line',
+            \ "\<C-v>"	: 'v-block',
+            \ 's' 		: 'select',
+            \ 'S' 		: 's-line',
+            \ 'R' 		: 'replace',
+            \ 'Rv'		: 'v-replace',
+            \ 'c' 		: 'command',
+            \ 'cv'		: 'vim Ex',
+            \ 'ce'		: 'ex',
+            \ 'r'		: 'prompt',
+            \ 'rm'		: 'more',
+            \ 'r?'		: 'confirm',
+            \ '!' 		: 'shell',
+            \ 't' 		: 'terminal'
+            \}
+
+" get current git branch
+function! GitInfo()
+    let git = fugitive#head()
+    if git != ''
+        return '('.fugitive#head().') '
+    else
+        return ''
+    endif
+endfunction
+
+" get current vim mode
+function! CurrentMode()
+    return '  '.s:modes[mode()].' '
+endfunction
+
+" format
+set statusline=
+set statusline+=%{CurrentMode()}
+set statusline+=\§\ %{GitInfo()}
+set statusline+=%{expand('%:~:.')!=#''?expand('%:~:.'):'[No\ Name]'}
+set statusline+=%m\ %r
+set statusline+=%#SpecialKey#
+set statusline+=\ %=
+set statusline+=%{&filetype}\ "
+" }}}
+
 " Source *.vim files {{{
 " for f in glob('~\\vimfiles\\plugsrc\\*.vim', 0, 1)
 "     execute 'source' f
