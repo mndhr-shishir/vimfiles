@@ -1,4 +1,4 @@
-set guifont=mononoki:h11
+set guifont=roboto\ mono:h10
 set guicursor+=a:blinkon0
 set linespace=1
 set guioptions=
