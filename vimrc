@@ -1,5 +1,9 @@
 " vimrc
 " Plugins {{{
+" Native {{{
+packadd! matchit
+" }}}
+
 call plug#begin("E:\\_vimext\\plugs\\")
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
@@ -29,14 +33,13 @@ Plug 'fatih/vim-go'
 Plug 'neovimhaskell/haskell-vim'
 " colorscheme(s)
 Plug 'junegunn/seoul256.vim'
-Plug 'NLKNguyen/papercolor-theme'
 call plug#end()
 " }}}
 
 " General {{{
 
 filetype plugin indent on
-syntax sync minlines=256 "opt
+syntax sync minlines=256
 
 " Toggleables
 set autoindent
@@ -54,89 +57,96 @@ set nocursorline
 set nofsync
 set noshowcmd
 set noshowmode
+set nosplitright
 set nostartofline
 set noswapfile
-set nowritebackup
 set nowrap
+set nowritebackup
 set number
 set smartcase
 set smarttab
 set ttyfast
 set wildmenu
+set splitbelow
 set splitright
-set nosplitbelow
 
 " Key/value pairs
-set showbreak=↳
 set backspace=indent,eol,start
 set complete-=t,i
 set completeopt=menu,menuone,noinsert,noselect
 set encoding=utf-8
+set formatoptions+=j
 set history=1000
 set laststatus=2
 set listchars=tab:\ \ ,extends:»,precedes:«,nbsp:·,trail:·
 set noeb vb t_vb=
+set pastetoggle=<F3>
 set pumheight=7
+set pythonthreedll=python37.dll
 set redrawtime=10000
 set renderoptions=type:directx
 set scrolloff=3
 set sessionoptions-=options
+set shiftwidth=4
 set shortmess+=cFns
 set shortmess-=S
+set showbreak=↳
 set sidescroll=1
 set signcolumn=yes
-set tabstop=4
-set shiftwidth=4
 set softtabstop=4
 set synmaxcol=200
 set tabpagemax=50
+set tabstop=4
+set textwidth=79
 set updatetime=300
 set wildignore+=*.zip,*.png,*.jpg,*.gif,*.pdf,*DS_Store*,*\\.git\\*,*\\node_modules\\*,*\\build\\*,*\\__pycache__\\*,package-lock.json
-set pythonthreedll=python37.dll
 " }}}
 
 " Abbrevs {{{
-cnoreabbrev ve verbose
 
 " change git to Git(vim-fugitive version)
 function! AbbrevCmd(cmd, target)
     return (getcmdtype() ==# ':' && getcmdline() ==# a:cmd) ? a:target : a:cmd
 endfunction
+
 cnoreabbrev <expr> git AbbrevCmd('git', 'Git')
+cnoreabbrev <expr> ver AbbrevCmd('ver', 'verbose')
 " }}}
 
-" Keymaps {{{
+" General Keymaps {{{
 let mapleader="\<Space>"
 
 " show highlight group
 map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+            \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+            \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
-" terminal remaps
-tnoremap fd <c-\><c-n>
 
 " skip some symbols (useful when you have autopairs)
-inoremap <expr> <S-enter> search('\%#[]>)}''"`]', 'n') ? '<right>' : ''
+inoremap <expr> <s-cr> search('\%#[]>)}''"`]', 'n') ? '<right>' : ''
 
-" discard popupmenu selection and goto next line
+" choose the first popupmenu selection and goto next line
 imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>delimitMateCR" : "<Plug>delimitMateCR"
 
-" command line completion
-cnoremap <c-tab> <c-d>
+" contextual next/prev command
+cnoremap <c-n> <down>
+cnoremap <c-p> <up>
 
-" close quickfix on <c-z>
-nnoremap <silent> <c-z> :ccl<cr>
+" close highlights
+nnoremap <silent> \<space> :noh<cr>
 
-" write shell command
+" write shell commands
 nnoremap \\ :!
 nnoremap \| :silent !
 
-" toggle case
-inoremap <c-k> <esc>viw~ea
-
-" some remappings
-nnoremap <tab> %
+" toggle case of the word
+inoremap <c-k>w <esc>viw~ea
+" uppercase word
+inoremap <c-k>u <esc>gUiwea
+" lowercase word
+inoremap <c-k>l <esc>guiwea
+" toggle case of the starting letter of a word
+inoremap <c-k>b <esc>b~ea
 
 " nearby find and replace
 nnoremap c; *``cgn
@@ -156,9 +166,11 @@ nnoremap <silent> gQ :bd!<cr>
 vnoremap <silent> gq <c-c>:bd<cr>
 
 " switch between alternate buffers
-nnoremap <leader><leader> <C-^>
+nnoremap <bs> <c-^>
 " split alternate buffer
-nnoremap <silent> <leader>w<leader> :vsp #<cr>
+nnoremap <silent> <leader>w<bs> :vsp #<cr>
+" vsplit current buffer
+nnoremap <silent> <leader>w. :vsp<cr>
 
 " navigate between windows
 nnoremap <leader>wj <c-w>j
@@ -170,19 +182,26 @@ nnoremap <leader>wh <c-w>h
 inoremap fd <esc>
 vnoremap fd <esc>
 snoremap fd <esc>
-nnoremap <esc> :noh<cr>
+tnoremap fd <c-\><c-n>
 
-" edit vimrc and source current file
-nnoremap <leader>v :e $MYVIMRC<cr>
-nnoremap <leader>V :source %<cr>
+" edit vimrc
+nnoremap <leader><localleader> :e $MYVIMRC<cr>
+vnoremap <leader><localleader> :e $MYVIMRC<cr>
+tnoremap <leader><localleader> :e $MYVIMRC<cr>
+" source current file
+nnoremap <leader><bar> :source %<cr>
+" source a part of a file
+vnoremap <leader>@ y:@"<cr>
 " }}}
 
 " Augroups {{{
 " Renu Toggle {{{
 augroup ToggleRelativeNumber
     autocmd!
-    autocmd InsertLeave,BufEnter,FocusGained * set relativenumber
-    autocmd InsertEnter,BufLeave,FocusLost   * set norelativenumber
+    " autocmd InsertLeave,BufEnter * set relativenumber
+    " autocmd InsertEnter,BufLeave * set norelativenumber
+    autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu   | endif
+    autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
 augroup END
 " }}}
 " Autoread {{{
@@ -228,8 +247,8 @@ augroup ft_vim
     autocmd FileType vim setlocal foldmethod=marker formatoptions-=o
 augroup END
 " }}}
-" Search highlight settings {{{
-augroup vimrc-incsearch-highlight
+" Toggle 'hlsearch' {{{
+augroup ToggleIncsearchHl
     autocmd!
     autocmd CmdlineEnter /,\? :set hlsearch
     autocmd CmdlineLeave /,\? :set nohlsearch
@@ -253,7 +272,7 @@ function! Preserve(command)
     call winrestview(w)
 endfunction
 " }}}
-" Create directories if they don't exis {{{
+" Create non-existing folders {{{
 " original source: pending...
 function! s:MkNonExDir(file, buf)
     if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
@@ -273,6 +292,7 @@ augroup END
 function! <SID>StripTrailingWhitespaces()
 	let l = line(".")
 	let c = col(".")
+    " Remove whitespace
 	%s/\s\+$//e
 	call cursor(l, c)
 endfun
@@ -326,12 +346,12 @@ function! MoveLineOrVisualUpOrDown(move_arg)
   execute "normal! ".col_num."|"
 endfunction
 
-nnoremap <silent> <A-k> :<C-u>call MoveLineUp()<CR>
-nnoremap <silent> <A-j> :<C-u>call MoveLineDown()<CR>
-inoremap <silent> <A-k> <C-o>:call MoveLineUp()<CR>
-inoremap <silent> <A-j> <C-o>:call MoveLineDown()<CR>
-xnoremap <silent> <A-k> :<C-u>call MoveVisualUp()<CR>
-xnoremap <silent> <A-j> :<C-u>call MoveVisualDown()<CR>
+nnoremap <silent> <a-k> :<C-u>call MoveLineUp()<CR>
+nnoremap <silent> <a-j> :<C-u>call MoveLineDown()<CR>
+inoremap <silent> <a-k> <C-o>:call MoveLineUp()<CR>
+inoremap <silent> <a-j> <C-o>:call MoveLineDown()<CR>
+xnoremap <silent> <a-k> :<C-u>call MoveVisualUp()<CR>
+xnoremap <silent> <a-j> :<C-u>call MoveVisualDown()<CR>
 "vnoremap <silent> <A-k> :<C-u>call MoveVisualUp()<CR>
 "vnoremap <silent> <A-j> :<C-u>call MoveVisualDown()<CR>
 " }}}
@@ -441,43 +461,6 @@ augroup Emmet
 augroup END
 " }}}
 
-" Vim-go {{{
-" Config
-" let g:neomake_go_enabled_makers = []
-let g:go_imports_mode                        = "goimports"
-
-let g:go_echo_go_info                        = 0
-let g:go_gopls_enabled                       = 0
-let g:go_diagnostics_enabled                 = 0
-let g:go_echo_command_info                   = 0
-let g:go_fmt_autosave                        = 0
-let g:go_template_autocreate                 = 0
-let g:go_def_mapping_enabled                 = 0
-
-" syntax highlights
-let g:go_highlight_types                     = 1
-let g:go_highlight_operators                 = 1
-let g:go_highlight_format_strings            = 1
-let g:go_highlight_functions                 = 1
-let g:go_highlight_function_calls            = 1
-let g:go_highlight_function_parameters       = 0
-let g:go_highlight_diagnostic_errors         = 0
-let g:go_highlight_diagnostic_warnings       = 0
-let g:go_highlight_trailing_whitespace_error = 0
-
-" Keymaps
-function s:GoKeyMaps()
-    nnoremap <silent> <buffer> <localleader>. :GoRun<cr><cr>
-    nnoremap <silent> <buffer> <localleader>? :GoImports<cr>
-endfunction
-
-" Autocmds
-augroup Go
-    autocmd!
-    autocmd FileType go call <SID>GoKeyMaps()
-augroup END
-" }}}
-
 " Gutentags {{{
 " Config
 " let g:gutentags_ctags_extra_args = ['--options=~\\vimfiles\\ctagsrc']
@@ -570,7 +553,7 @@ let g:mucomplete#chains = {}
 let g:mucomplete#chains.default = ['keyn', 'c-n']
 
 " Keymaps
-imap <expr> <c-tab> mucomplete#extend_fwd("\<c-tab>")
+imap <expr> <c-space> mucomplete#extend_fwd("\<c-space>")
 " }}}
 
 " Obsession {{{
@@ -597,8 +580,8 @@ let g:snipMate['no_match_completion_feedkeys_chars'] = ''
 
 " Keymaps
 " forward
-imap <expr> <C-space> (pumvisible() ? "\<C-y>" : "")."\<Plug>snipMateNextOrTrigger"
-smap <expr> <C-space> (pumvisible() ? "\<C-y>" : "")."\<Plug>snipMateNextOrTrigger"
+imap <expr> <c-tab> (pumvisible() ? "\<c-y>" : "")."\<Plug>snipMateNextOrTrigger"
+smap <expr> <c-tab> (pumvisible() ? "\<c-y>" : "")."\<Plug>snipMateNextOrTrigger"
 
 " backward
 " imap <expr> <S-space> (pumvisible() ? "\<C-y>" : "")."\<Plug>snipMateBack"
@@ -609,29 +592,25 @@ smap <expr> <C-space> (pumvisible() ? "\<C-y>" : "")."\<Plug>snipMateNextOrTrigg
 " Config
 let g:rooter_silent_chdir = 1
 " }}}
+
+" Fugitive {{{
+" Keymaps
+nnoremap <leader>gg :Gstatus<cr>
+nnoremap <leader>g/ :Gvdiffsplit HEAD^<cr>
+nnoremap <leader>g% :0Gclog<cr>
+" }}}
 " }}}
 
 " ColorScheme {{{
 " All  {{{
 function! CustomHighlights() abort
     highlight SignColumn guibg=NONE
-    highlight LineNr     ctermbg=NONE       guibg=NONE
-    highlight NonText    gui=NONE
-    " highlight Comment    gui=italic
-    highlight SpecialKey guibg=NONE
+    highlight LineNr     guibg=NONE
+    highlight Comment    gui=NONE
+    " highlight SpecialKey guibg=NONE
+    " highlight Folded     gui=BOLD
+    " highlight NonText    gui=NONE
     " hi MatchParen gui=bold,underline guibg=NONE
-endfunction
-" }}}
-" Apprentice {{{
-function! CustomApprentice() abort
-    call CustomHighlights()
-
-    highlight link htmlArg Type
-
-    highlight NeoMakeErrorSign   ctermfg=235 ctermbg=131 guifg=#af5f5f guibg=#262626
-    highlight NeoMakeWarningSign ctermfg=235 ctermbg=229 guifg=#ffffaf guibg=#262626
-    highlight NeoMakeMessageSign ctermfg=108 ctermbg=235 guifg=#87af87 guibg=#262626
-    highlight NeoMakeInfoSign    ctermfg=110 ctermbg=235 guifg=#8fafd7 guibg=#262626
 endfunction
 " }}}
 " Seoul-256 {{{
@@ -639,53 +618,54 @@ function! CustomSeoul() abort
     call CustomHighlights()
 
     if g:colors_name ==# 'seoul256'
-        highlight StatusLine   cterm=bold,reverse   ctermfg=95 ctermbg=234 gui=bold,reverse   guifg=#987372 guibg=#252525
-        highlight StatusLineNC cterm=bold,underline ctermfg=95 ctermbg=234 gui=bold,underline guifg=#987372 guibg=#252525
+        highlight StatusLine   cterm=bold,reverse   ctermfg=95 ctermbg=234 gui=bold guifg=#987372 guibg=#252525
+        highlight StatusLineNC cterm=bold,underline ctermfg=95 ctermbg=234 gui=NONE guifg=#727272 guibg=#252525
+        " highlight StatusLineNC cterm=bold,underline ctermfg=95 ctermbg=234 gui=italic guifg=#987372 guibg=#252525
 
         " inbuilt terminal ColorScheme
         let g:terminal_ansi_colors = [
-            \ "#4e4e4e",
-            \ "#d68787",
-            \ "#5f865f",
-            \ "#d8af5f",
-            \ "#85add4",
-            \ "#d7afaf",
-            \ "#87afaf",
-            \ "#d0d0d0",
-            \ "#626262",
-            \ "#d75f87",
-            \ "#87af87",
-            \ "#ffd787",
-            \ "#add4fb",
-            \ "#ffafaf",
-            \ "#87d7d7",
-            \ "#e4e4e4",
-            \ ]
+                    \ "#4e4e4e",
+                    \ "#d68787",
+                    \ "#5f865f",
+                    \ "#d8af5f",
+                    \ "#85add4",
+                    \ "#d7afaf",
+                    \ "#87afaf",
+                    \ "#d0d0d0",
+                    \ "#626262",
+                    \ "#d75f87",
+                    \ "#87af87",
+                    \ "#ffd787",
+                    \ "#add4fb",
+                    \ "#ffafaf",
+                    \ "#87d7d7",
+                    \ "#e4e4e4",
+                    \ ]
     else
         let g:terminal_ansi_colors = [
-            \ "#4e4e4e",
-            \ "#af5f5f",
-            \ "#5f885f",
-            \ "#af8760",
-            \ "#5f87ae",
-            \ "#875f87",
-            \ "#5f8787",
-            \ "#e4e4e4",
-            \ "#3a3a3a",
-            \ "#870100",
-            \ "#005f00",
-            \ "#d8865f",
-            \ "#0087af",
-            \ "#87025f",
-            \ "#008787",
-            \ "#eeeeee",
-            \ ]
+                    \ "#4e4e4e",
+                    \ "#af5f5f",
+                    \ "#5f885f",
+                    \ "#af8760",
+                    \ "#5f87ae",
+                    \ "#875f87",
+                    \ "#5f8787",
+                    \ "#e4e4e4",
+                    \ "#3a3a3a",
+                    \ "#870100",
+                    \ "#005f00",
+                    \ "#d8865f",
+                    \ "#0087af",
+                    \ "#87025f",
+                    \ "#008787",
+                    \ "#eeeeee",
+                    \ ]
     endif
 
-    highlight NeoMakeErrorSign   guifg=#E12672
-    highlight NeoMakeWarningSign guifg=#DFBC72
-    highlight NeoMakeMessageSign guifg=#719872
-    highlight NeoMakeInfoSign    guifg=#98BCBD
+    highlight NeoMakeErrorSign      gui=BOLD guifg=#E12672
+    highlight NeoMakeWarningSign    gui=BOLD guifg=#DFBC72
+    highlight NeoMakeMessageSign    gui=BOLD guifg=#719872
+    highlight NeoMakeInfoSign       gui=BOLD guifg=#98BCBD
 
 endfunction
 " }}}
@@ -693,17 +673,19 @@ endfunction
 " Autocommands
 augroup CustomColorscheme
     autocmd!
-    autocmd Colorscheme seoul256,seoul256-light call CustomSeoul()
+    autocmd ColorScheme seoul256,seoul256-light call CustomSeoul()
 augroup END
 
 set background=dark
 let g:python_highlight_all=1
+" let g:seoul256_background=234
 let g:seoul256_background=234
+let g:seoul256_light_background = 255
 color seoul256
 " }}}
 
 " Statusline {{{
-" Modes
+" (dict) Modes {{{
 let s:modes= {
             \ 'n'  	    : 'normal',
             \ 'i'  	    : 'insert',
@@ -721,87 +703,58 @@ let s:modes= {
             \ 'rm'		: 'more',
             \ 'r?'		: 'confirm',
             \ '!' 		: 'shell',
-            \ 't' 		: 'terminal'
-            \}
-
-" get current vim mode
-function! CurrentMode()
-    return '  '.s:modes[mode()].' '
-endfunction
-
-" get current git branch
-function! GitInfo()
-    let git = fugitive#head()
-    if git != ''
-        " return '•'.fugitive#head().'• '
-        return '('.fugitive#head().') '
-    else
-        return ''
-    endif
-endfunction
-
-
-function! NeomakeBufInfo()
-    let bufInfo = neomake#statusline#LoclistCounts()
-
-    if bufInfo->empty()
-        return ''
-    endif
-
-    return string(bufInfo)
-endfunction
-
-" format
-set statusline=
-set statusline+=%{CurrentMode()}
-set statusline+=\§\ %{GitInfo()}
-set statusline+=%{expand('%:~:.')!=#''?expand('%:~:.'):'[No\ Name]'}
-set statusline+=%m%r\ "
-set statusline+=%#SpecialKey#
-set statusline+=\ %{NeomakeBufInfo()}
-set statusline+=\ %=
-set statusline+=%{&filetype}\ "
+            \ 't' 		: 'terminal',
+            \ }
 " }}}
 
-" Toggle Terminal {{{
-" In testing phase...
-let s:term_name = "__TERMINAL__"
-let s:term_win_id = -1
-let s:term_bufnr  = -1
-let s:term_job_id = -1
-
-function TermOpen()
-    if !bufexists(s:term_bufnr)
-        " create a new window
-        let s:term_job_id = term_start(&shell, {"term_name": s:term_name, "vertical": 1})
-
-        let s:term_win_id = win_getid()
-        let s:term_bufnr = bufnr('%')
-        setlocal nobuflisted
-    else
-        if !win_gotoid(s:term_win_id)
-            vsplit
-            execute "buffer " . s:term_name
-            let s:term_win_id = win_getid()
-            execute "normal! i"
-        endif
+" (fn)Current mode {{{
+function! CurrentMode()
+    return &paste ? s:modes[mode()] . '(paste)' : s:modes[mode()]
+endfunction
+" }}}
+" (fn)Current git branch {{{
+function! GitBranch()
+    let git = fugitive#head()
+    if git != ""
+        return "\ ".fugitive#head()." ❯"
     endif
+    return ""
+endfunction
+" }}}
+" (fn)Linter Info {{{
+function! NeomakeLinterInfo()
+    let linterInfo = neomake#statusline#LoclistCounts()
+    let linteInfoStr = ''
+    if linterInfo->empty()
+        return linteInfoStr
+    endif
+
+    for key in keys(linterInfo) 
+        let linteInfoStr .= tolower(key) . ':' . linterInfo[key] . ' '
+    endfor
+    return "\ " . linteInfoStr . "❯"
+endfunction
+" }}}
+" (fn)Show Filetype {{{
+function! ShowFt() 
+    if &filetype !=# ''
+        return '❮ '.&filetype
+    endif
+    return ''
 endfunction
 
-function TermClose()
-    if win_gotoid(s:term_win_id)
-        hide
-    endif
-endfunction
+" }}}
 
-function TermToggle()
-    if win_gotoid(s:term_win_id)
-        call TermClose()
-    else
-        call TermOpen()
-    endif
-endfunction
-
-nnoremap <silent> <a-/> :call TermToggle()<cr>
-tnoremap <silent> <a-/> <c-\><c-n>:call TermToggle()<cr>
-"   }}}
+" Statusline format {{{
+set statusline=
+" set statusline+=%#LineNr#
+set statusline+=\ %{CurrentMode()}
+set statusline+=\ ❯
+set statusline+=%{GitBranch()}
+set statusline+=\ %{expand('%:~:.')!=#''?expand('%:~:.'):'[No\ name]'}
+set statusline+=%m%r\ ❯
+set statusline+=%{NeomakeLinterInfo()}
+set statusline+=%=
+set statusline+=%{ShowFt()}\ "
+" }}}
+" }}}

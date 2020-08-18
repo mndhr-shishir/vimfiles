@@ -1,4 +1,6 @@
-set guifont=roboto\ mono:h10
+" gvimrc
+
+set guifont=Fira_Mono:h10:cANSI:qDRAFT
 set guicursor+=a:blinkon0
 set linespace=1
 set guioptions=
